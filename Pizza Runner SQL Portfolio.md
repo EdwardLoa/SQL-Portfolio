@@ -193,9 +193,9 @@ CREATE VIEW pizza_ing_cleaned AS
 		
 	SELECT 
 		S.pizza_id, 
-        CAST(ingredient_id AS SIGNED) AS ingredient_id, 
-        N.pizza_name, 
-        T.topping_name
+        	CAST(ingredient_id AS SIGNED) AS ingredient_id, 
+        	N.pizza_name, 
+        	T.topping_name
 	FROM 
 		split_pizza_recipe S
 		JOIN pizza_toppings T ON S.ingredient_id = T.topping_id
@@ -204,7 +204,7 @@ CREATE VIEW pizza_ing_cleaned AS
 		ingredient_id != 0
 	ORDER BY 
 		pizza_id ASC, 
-        CAST(ingredient_id AS SIGNED) ;
+        	CAST(ingredient_id AS SIGNED) ;
 
 SELECT * FROM pizza_ing_cleaned;
 ```
@@ -252,31 +252,31 @@ CREATE VIEW cleaned_runner_orders AS
 SELECT 
 	order_id,
 	CAST(IF (pickup_time = 'null', NULL, pickup_time) AS DATETIME) AS pickup_time,
-    CAST(
+    	CAST(
 		CASE 
 			WHEN distance LIKE '%km' THEN TRIM(SUBSTRING_INDEX(distance, 'km', 1))
 			WHEN distance = 'null' THEN NULL
 			ELSE distance
 			END
 		AS float)
-	AS 'distance(km)',
-    CAST(
+		AS 'distance(km)',
+    	CAST(
 		CASE
 			WHEN duration = 'null' THEN NULL
 			WHEN duration REGEXP '[0-9]+' THEN REGEXP_SUBSTR(duration, '[0-9]+')
 			ELSE TRIM(duration)
 			END
 		AS SIGNED)
-	AS 'duration(mins)',
-    CASE
+		AS 'duration(mins)',
+    	CASE
 		WHEN cancellation = 'null' THEN NULL
-        WHEN cancellation = '' THEN NULL
-        ELSE cancellation
-        END
-	AS cancellation,
-    O.runner_id,
-    R.registration_date,
-    O.rating
+        	WHEN cancellation = '' THEN NULL
+        	ELSE cancellation
+        	END
+		AS cancellation,
+    	O.runner_id,
+    	R.registration_date,
+    	O.rating
 FROM runner_orders O
 JOIN runners R ON O.runner_id = R.runner_id;
 
@@ -329,14 +329,14 @@ SELECT record_id, order_id, customer_id, pizza_id, order_time,
 	CASE 
 		WHEN exclusions = 'null' THEN NULL
 		WHEN exclusions = '' THEN NULL
-        ELSE exclusions
-        END
-	AS exclusions,
+        	ELSE exclusions
+        	END
+		AS exclusions,
 	CASE 
 		WHEN extras = 'null' THEN NULL
 		WHEN extras = '' THEN NULL
-        ELSE extras
-        END
+        	ELSE extras
+        	END
 	AS extras
 FROM customer_orders;
 SELECT * FROM cleaned_customer_orders;
@@ -368,20 +368,20 @@ CREATE VIEW cleaned_exclusions AS
 WITH recursive split_exclusions AS (
 	SELECT 
 		record_id,
-        order_id,
-        pizza_id,
+ 		order_id,
+        	pizza_id,
 		SUBSTRING_INDEX(exclusions, ',', 1) AS exclusions2,
-        SUBSTRING(exclusions, LOCATE(',', exclusions) +2) AS remainders
+        	SUBSTRING(exclusions, LOCATE(',', exclusions) +2) AS remainders
 	FROM cleaned_customer_orders
-    UNION ALL
-    SELECT
+    	UNION ALL
+    	SELECT
 		record_id,
-        order_id,
-        pizza_id,
-        SUBSTRING_INDEX(remainders, ',', 1),
-        SUBSTRING(remainders, LOCATE(',',remainders) + 2)
+        	order_id,
+        	pizza_id,
+        	SUBSTRING_INDEX(remainders, ',', 1),
+        	SUBSTRING(remainders, LOCATE(',',remainders) + 2)
 	FROM split_exclusions
-    WHERE remainders != ''
+    	WHERE remainders != ''
     )
     
 SELECT 
@@ -417,23 +417,28 @@ CREATE VIEW cleaned_extras AS
 WITH recursive split_extras AS (
 	SELECT 
 		record_id,
-        order_id,
-        pizza_id,
+        	order_id,
+        	pizza_id,
 		SUBSTRING_INDEX(extras, ',', 1) AS extras2,
-        SUBSTRING(extras, LOCATE(',', extras) +2) AS remainders
+        	SUBSTRING(extras, LOCATE(',', extras) +2) AS remainders
 	FROM cleaned_customer_orders
-    UNION ALL
-    SELECT
+    	UNION ALL
+    	SELECT
 		record_id,
-        order_id,
-        pizza_id,
-        SUBSTRING_INDEX(remainders, ',', 1),
-        SUBSTRING(remainders, LOCATE(',',remainders) + 2)
+        	order_id,
+        	pizza_id,
+        	SUBSTRING_INDEX(remainders, ',', 1),
+        	SUBSTRING(remainders, LOCATE(',',remainders) + 2)
 	FROM split_extras
-    WHERE remainders != ''
+    	WHERE remainders != ''
 )
     
-SELECT record_id, order_id, pizza_name, T.topping_id AS extra_topping_id, T.topping_name AS extra_topping
+SELECT
+	record_id,
+	order_id,
+	pizza_name,
+	T.topping_id AS extra_topping_id,
+	T.topping_name AS extra_topping
 FROM split_extras S
 JOIN pizza_toppings T ON S.extras2 = T.topping_id
 JOIN pizza_names N ON N.pizza_id = S.pizza_id
@@ -497,18 +502,17 @@ WHERE cancellation IS NULL;
 
 ```sql
 WITH successful_order AS
-    (SELECT     COUNT(order_id) AS no_successful_order, 
-                order_id
-    FROM cleaned_runner_orders
-    WHERE cancellation IS NULL
-    GROUP BY order_id)
+	(SELECT COUNT(order_id) AS no_successful_order, 
+		order_id
+    	 FROM cleaned_runner_orders
+    	 WHERE cancellation IS NULL
+    	 GROUP BY order_id)
 SELECT  N.pizza_name, 
         COUNT(O.pizza_id) AS no_delivered_pizza 
 FROM cleaned_customer_orders O
 JOIN successful_order S ON O.order_id = S.order_id
 JOIN pizza_names N ON N.pizza_id = O.pizza_id
-GROUP BY N.pizza_name
-;
+GROUP BY N.pizza_name;
 ```
 
 | pizza_name | no_delivered_pizza |
@@ -578,14 +582,12 @@ WITH temp_table AS
 
 SELECT
 	customer_id,
-    COUNT(
-		CASE 
-            WHEN changes_made = 'exclusions' THEN 1
+    	COUNT(
+		CASE 	WHEN changes_made = 'exclusions' THEN 1
 			WHEN changes_made = 'extras' THEN 1
 		END) As Num_changes_made,
 	COUNT(
-		CASE 
-            WHEN changes_made = 'No change' THEN 1
+		CASE WHEN changes_made = 'No change' THEN 1
 		END) As Num_no_changes
 FROM temp_table
 GROUP BY customer_id;
@@ -605,10 +607,10 @@ GROUP BY customer_id;
 SELECT COUNT(C.order_id)
 FROM cleaned_customer_orders C
 JOIN cleaned_runner_orders R ON C.order_id = R.order_id
-WHERE 
+WHERE
 	C.exclusions IS NOT NULL 
-    AND C.extras IS NOT NULL 
-    AND R.cancellation IS NULL;
+    	AND C.extras IS NOT NULL 
+    	AND R.cancellation IS NULL;
 ```
 **1 Pizza**
 
@@ -619,11 +621,11 @@ SELECT
     CAST(
         REGEXP_SUBSTR(order_time, '[0-9]{4}-[0-9]{2}-[0-9]{2} ')
         AS DATE) 
-    AS date_order,
+    	AS date_order,
     CAST(
         TRIM(REGEXP_SUBSTR(order_time, ' [0-9]{2}')) 
         AS UNSIGNED) 
-    AS hour_order,
+    	AS hour_order,
     COUNT(order_id) AS no_pizza_ordered
 FROM cleaned_customer_orders
 GROUP BY date_order, hour_order;
@@ -645,7 +647,7 @@ GROUP BY date_order, hour_order;
 ```sql
 SELECT
 	DAYNAME(STR_TO_DATE(order_time, '%Y-%m-%d %H:%i:%s')) AS day_of_week, 
-    COUNT(order_id) AS no_orders
+    	COUNT(order_id) AS no_orders
 FROM cleaned_customer_orders
 GROUP BY day_of_week;
 ```
@@ -666,8 +668,9 @@ GROUP BY day_of_week;
 
 ```sql
 WITH RECURSIVE WeekNumbers AS (
-    SELECT 1 AS WeekNumber,
-    CAST('2021-01-01' AS DATE) AS StartDate
+    SELECT
+	1 AS WeekNumber,
+    	CAST('2021-01-01' AS DATE) AS StartDate
     
     UNION ALL
     SELECT 
@@ -677,7 +680,7 @@ WITH RECURSIVE WeekNumbers AS (
         WeekNumbers
     WHERE 
         DATE_ADD(StartDate, INTERVAL 7 DAY) <= '2021-02-01' -- Limit recursion
-    )
+)
 
 SELECT 
     COUNT(r.runner_id) AS no_runners_joined,
@@ -690,7 +693,7 @@ JOIN
     r.registration_date >= wn.StartDate AND 
     r.registration_date < DATE_ADD(wn.StartDate, INTERVAL 7 DAY)
 GROUP BY 
-	wn.StartDate, wn.WeekNumber;
+    wn.StartDate, wn.WeekNumber;
 ```
 | no_runners_joined | week_starting | WeekNumber |
 | ----------------- | ------------- | ---------- |
@@ -712,14 +715,13 @@ WITH tempoTable AS (
         cleaned_runner_orders RO
 	JOIN cleaned_customer_orders CO ON CO.order_id = RO.order_id
     WHERE RO.pickup_time IS NOT NULL
-    )
+)
 
 SELECT
 	AVG(TIME_TO_SEC
-            (TIMEDIFF(pickupTime, orderTime) 
-		    )
+            (TIMEDIFF(pickupTime, orderTime) )
 	    )/ 60 AS avg_mins_to_arrive,
-    runner_id
+    	runner_id
 FROM tempoTable
 GROUP BY runner_id;
 ```
@@ -800,7 +802,10 @@ FROM cleaned_runner_orders;
 ### Question 6: What was the average speed for each runner for each delivery and do you notice any trend for these values?
 
 ```sql
-SELECT runner_id, order_id, ROUND( `distance(km)`/ (`duration(mins)`/60) ) AS speed
+SELECT
+	runner_id,
+	order_id,
+	ROUND( `distance(km)`/ (`duration(mins)`/60) ) AS speed
 FROM cleaned_runner_orders
 WHERE `duration(mins)` iS NOT NULL
 ORDER BY runner_id, order_id;
@@ -823,20 +828,20 @@ ORDER BY runner_id, order_id;
 ```sql
 SELECT 
 	runner_id, 
-    COUNT(order_id) AS No_orders,
-    SUM(CASE    WHEN cancellation IS NULL THEN 1
-		        ELSE 0
-                END)
-	AS successful_order,
+    	COUNT(order_id) AS No_orders,
+    	SUM(CASE WHEN cancellation IS NULL THEN 1
+		 ELSE 0
+		 END)
+		 AS successful_order,
 	ROUND(
-        (SUM(CASE   WHEN cancellation IS NULL THEN 1
+        	(SUM(CASE   WHEN cancellation IS NULL THEN 1
 		            ELSE 0
-                    END)
-        /
-	    COUNT(order_id)
-        )*100 
-    , 2)
-    AS success_rate
+			    END)
+        	/
+		COUNT(order_id)
+        	)*100 
+    		, 2)
+		AS success_rate
 FROM cleaned_runner_orders
 GROUP BY runner_id;
 ```
@@ -869,21 +874,23 @@ WITH recursive split_extras AS (
 	SELECT 
 		order_id,
 		SUBSTRING_INDEX(extras, ',', 1) AS extras,
-        SUBSTRING(extras, LOCATE(',', extras) +2) AS remainders2
+        	SUBSTRING(extras, LOCATE(',', extras) +2) AS remainders2
 	FROM cleaned_customer_orders
-    WHERE extras IS NOT NULL
+    	WHERE extras IS NOT NULL
     
     UNION ALL
     
-    SELECT
+    	SELECT
 		order_id,
-        SUBSTRING_INDEX(remainders2, ',', 1),
-        SUBSTRING(remainders2, LOCATE(remainders2, ',') +2)
+        	SUBSTRING_INDEX(remainders2, ',', 1),
+        	SUBSTRING(remainders2, LOCATE(remainders2, ',') +2)
 	FROM split_extras
-    WHERE remainders2 != ''
-    )
+ 	WHERE remainders2 != ''
+)
     
-SELECT COUNT(S.order_id), T.topping_name
+SELECT
+	COUNT(S.order_id),
+	T.topping_name
 FROM split_extras S
 JOIN pizza_toppings T ON S.extras = T.topping_id
 GROUP BY T.topping_name
@@ -906,7 +913,8 @@ WITH RECURSIVE split_exclusions AS (
         CASE
             WHEN LOCATE(',', exclusions) > 0 THEN SUBSTRING(exclusions, LOCATE(',', exclusions) + 2)
             ELSE ''
-        END AS remainders
+	    END
+	    AS remainders
     FROM cleaned_customer_orders
     WHERE exclusions IS NOT NULL
     UNION ALL
@@ -916,12 +924,15 @@ WITH RECURSIVE split_exclusions AS (
         CASE
             WHEN LOCATE(',', remainders) > 0 THEN SUBSTRING(remainders, LOCATE(',', remainders) + 2)
             ELSE ''
-        END AS remainders
+            END
+	    AS remainders
     FROM split_exclusions
     WHERE remainders != ''
 )
 
-SELECT T.topping_name, COUNT(S.order_id)
+SELECT
+	T.topping_name,
+	COUNT(S.order_id)
 FROM split_exclusions S
 JOIN pizza_toppings T ON S.exclusions = T.topping_id
 GROUP BY T.topping_name
@@ -951,37 +962,45 @@ VALUES
 ```sql
 WITH tempTable4 AS (
 		WITH tempTable3 AS (
-				        SELECT DISTINCT CO.order_id, CO.record_id, PI.pizza_name, PI.topping_name, CE.extra_topping
-
-						FROM cleaned_customer_orders CO
+				        SELECT DISTINCT
+						CO.order_id,
+						CO.record_id,
+						PI.pizza_name,
+						PI.topping_name,
+						CE.extra_topping
+					FROM cleaned_customer_orders CO
 						JOIN pizza_ing_cleaned PI ON CO.pizza_id = PI.pizza_id
 						LEFT JOIN cleaned_extras CE ON CE.record_id = CO.record_id AND topping_name = extra_topping
 
 
-				UNION ALL
+					UNION ALL
 
-				        SELECT DISTINCT CE.order_id, CE.record_id, CE.pizza_name, PI.topping_name, CE.extra_topping
-						FROM cleaned_customer_orders CO
-						JOIN pizza_ing_cleaned PI ON CO.pizza_id = PI.pizza_id
-						RIGHT JOIN cleaned_extras CE ON CE.record_id = CO.record_id AND topping_name = extra_topping
-						WHERE topping_name IS NULL
-        )
+				        SELECT DISTINCT
+						CE.order_id,
+						CE.record_id,
+						CE.pizza_name,
+						PI.topping_name,
+						CE.extra_topping
+					FROM cleaned_customer_orders CO
+					JOIN pizza_ing_cleaned PI ON CO.pizza_id = PI.pizza_id
+					RIGHT JOIN cleaned_extras CE ON CE.record_id = CO.record_id AND topping_name = extra_topping
+					WHERE topping_name IS NULL
+        				)
 
 		SELECT T.order_id, T.record_id, T.pizza_name,
 				CASE	WHEN topping_name = extra_topping THEN CONCAT('2x ', topping_name)
-						WHEN topping_name = X.excluded_topping THEN null
-						WHEN topping_name IS NULL THEN extra_topping
-						ELSE topping_name
-						END
-				AS updated_ingredient
+					WHEN topping_name = X.excluded_topping THEN null
+					WHEN topping_name IS NULL THEN extra_topping
+					ELSE topping_name
+					END
+					AS updated_ingredient
 		FROM tempTable3 T
-		LEFT JOIN cleaned_exclusions X
-			    ON T.record_id = X.record_id AND T.topping_name = X.excluded_topping
+		LEFT JOIN cleaned_exclusions X ON T.record_id = X.record_id AND T.topping_name = X.excluded_topping
 )
 
 SELECT  record_id, 
         order_id,
-		CONCAT(pizza_name, ': ', GROUP_CONCAT(updated_ingredient ORDER BY updated_ingredient SEPARATOR ', ' )) AS pizza_ingredient
+	CONCAT(pizza_name, ': ', GROUP_CONCAT(updated_ingredient ORDER BY updated_ingredient SEPARATOR ', ' )) AS pizza_ingredient
 FROM tempTable4
 GROUP BY order_id, record_id, pizza_name;
 ```
@@ -1010,17 +1029,24 @@ GROUP BY order_id, record_id, pizza_name;
 
 ```sql
 WITH tempTable6 AS(
-                SELECT CO.record_id, CO.order_id, PI.pizza_name,
-						CASE	WHEN topping_name = excluded_topping THEN null
-								ELSE topping_name
+                SELECT
+			CO.record_id,
+			CO.order_id,
+			PI.pizza_name,
+			CASE	WHEN topping_name = excluded_topping THEN null
+				ELSE topping_name
                                 END
-						AS updated_ingredient
-						FROM cleaned_customer_orders CO
-						JOIN pizza_ing_cleaned PI ON CO.pizza_id = PI.pizza_id
-                        LEFT JOIN cleaned_exclusions X
-						ON CO.record_id = X.record_id AND PI.topping_name = X.excluded_topping
-				UNION ALL
-				SELECT record_id, order_id, pizza_name, extra_topping AS updated_ingredient
+				AS updated_ingredient
+		FROM cleaned_customer_orders CO
+		JOIN pizza_ing_cleaned PI ON CO.pizza_id = PI.pizza_id
+		LEFT JOIN cleaned_exclusions X ON CO.record_id = X.record_id AND PI.topping_name = X.excluded_topping
+
+		UNION ALL
+		SELECT
+			record_id,
+			order_id,
+			pizza_name,
+			extra_topping AS updated_ingredient
                 FROM cleaned_extras
 )
 SELECT  COUNT(updated_ingredient) AS quantity, 
@@ -1028,8 +1054,8 @@ SELECT  COUNT(updated_ingredient) AS quantity,
 FROM tempTable6
 WHERE updated_ingredient IS NOT NULL
 GROUP BY updated_ingredient
-ORDER BY    COUNT(updated_ingredient) DESC, 
-            updated_ingredient ASC
+ORDER BY COUNT(updated_ingredient) DESC,
+	 updated_ingredient ASC
 ;
 ```
 | quantity | ingredient   |
@@ -1055,10 +1081,10 @@ ORDER BY    COUNT(updated_ingredient) DESC,
 WITH tempTable7 AS(
 SELECT  pizza_id, 
         COUNT(record_id) AS quantity,
-		CASE 	WHEN pizza_id = 1 THEN 12
-				ELSE 10
-                END
-		AS price
+		CASE WHEN pizza_id = 1 THEN 12
+		     ELSE 10
+                     END
+		     AS price
 FROM cleaned_customer_orders
 GROUP BY pizza_id
 )
@@ -1071,21 +1097,22 @@ SELECT SUM(quantity*price) AS Revenue FROM tempTable7;
 ```sql
 WITH tempTable7 AS(
 SELECT pizza_id, COUNT(record_id) AS quantity,
-		CASE 	WHEN pizza_id = 1 THEN 12
-				ELSE 10
-                END
-		AS price
+		CASE WHEN pizza_id = 1 THEN 12
+		     ELSE 10
+                     END
+		     AS price
 FROM cleaned_customer_orders
 GROUP BY pizza_id
 )
 SELECT  SUM(quantity*price) + 
 		    (SELECT 
-		    SUM(CASE WHEN extra_topping = 'Cheese' THEN 2
-				     ELSE 1
-                     END) 
-        AS extra_cost
-		FROM cleaned_extras)
-AS Revenue FROM tempTable7;
+		    	SUM(CASE WHEN extra_topping = 'Cheese' THEN 2
+			     ELSE 1
+			     END) 
+			AS extra_cost
+		     FROM cleaned_extras)
+	AS Revenue
+FROM tempTable7;
 ```
 **Revenue of $218**
 
@@ -1100,16 +1127,16 @@ ADD rating ENUM('1', '2', '3', '4', '5');
 UPDATE runner_orders
 SET rating = 
 	CASE	WHEN order_id = 1 THEN 1
-			WHEN order_id = 2 THEN 2
-            WHEN order_id = 3 THEN 3
-            WHEN order_id = 4 THEN 4
-            WHEN order_id = 5 THEN 5
-            WHEN order_id = 6 THEN 1
-            WHEN order_id = 7 THEN 2
-            WHEN order_id = 8 THEN 3
-            WHEN order_id = 9 THEN 4
-            ELSE 5
-            END;
+		WHEN order_id = 2 THEN 2
+            	WHEN order_id = 3 THEN 3
+            	WHEN order_id = 4 THEN 4
+            	WHEN order_id = 5 THEN 5
+            	WHEN order_id = 6 THEN 1
+            	WHEN order_id = 7 THEN 2
+            	WHEN order_id = 8 THEN 3
+            	WHEN order_id = 9 THEN 4
+            	ELSE 5
+            	END;
 ```
 
 ### Question 4: Using your newly generated table - can you join all of the information together to form a table which has the following information for successful deliveries?
@@ -1118,7 +1145,7 @@ SET rating =
 ```sql
 WITH tempTable8 AS(
         SELECT 	COUNT(record_id) AS pizza_quantity,
-		        order_id,
+		order_id,
                 customer_id,
                 order_time
         FROM cleaned_customer_orders
@@ -1132,11 +1159,11 @@ SELECT  customer_id,
         rating, 
         order_time, 
         pickup_time, 
-	    TIMEDIFF(pickup_time, order_time) AS Time_between_order_and_pickup,
-	    SEC_TO_TIME(`duration(mins)` * 60) AS delivery_duration,
+	TIMEDIFF(pickup_time, order_time) AS Time_between_order_and_pickup,
+	SEC_TO_TIME(`duration(mins)` * 60) AS delivery_duration,
         ROUND(AVG(`distance(km)`/ (`duration(mins)` / 60)) 
-				OVER (PARTITION BY runner_id) , 2) AS runner_avg_speed,
-	    pizza_quantity  AS total_number_of_pizza
+		OVER (PARTITION BY runner_id) , 2) AS runner_avg_speed,
+	pizza_quantity  AS total_number_of_pizza
 FROM cleaned_runner_orders R
 JOIN tempTable8 CO ON CO.order_id = R.order_id
 WHERE cancellation IS NULL;
@@ -1157,10 +1184,9 @@ WHERE cancellation IS NULL;
 ```sql
 WITH tempTable10 AS(
                     SELECT order_id,
-		            SUM(CASE 	WHEN pizza_id = 1 THEN 12
-				                ELSE 10
-                        END
-		            )AS Revenue_per_order
+		            SUM(CASE WHEN pizza_id = 1 THEN 12
+				     ELSE 10
+				     END) AS Revenue_per_order
                     FROM cleaned_customer_orders
                     GROUP BY order_id
 )
