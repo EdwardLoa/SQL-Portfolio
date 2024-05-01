@@ -177,20 +177,20 @@ CREATE VIEW pizza_ing_cleaned AS
 	WITH RECURSIVE split_pizza_recipe AS (
 		SELECT
 			pizza_id,
-			SUBSTRING_INDEX(toppings, ',', 1) AS ingredient_id,
-			SUBSTRING(toppings, LOCATE(',' , toppings) + 2) AS remaining_text
+			SUBSTRING_INDEX(toppings, ',', 1) AS ingredient_id, /* Fetching the first topping ID */
+			SUBSTRING(toppings, LOCATE(',' , toppings) + 2) AS remaining_text /* Fetching the remaining topping IDs */
 		FROM
 			pizza_recipes
 		
 		UNION ALL
 		SELECT
 			pizza_id,
-			SUBSTRING_INDEX(remaining_text, ',', 1),
+			SUBSTRING_INDEX(remaining_text, ',', 1), /* Fetching the first topping ID of the remaining text */
 			SUBSTRING(remaining_text, LOCATE(',' , remaining_text) + 2)
 		FROM
 			split_pizza_recipe
 		WHERE
-			remaining_text != ''
+			remaining_text != '' /* recursive or looping this process until there is nothing left */
         )
 
 		
