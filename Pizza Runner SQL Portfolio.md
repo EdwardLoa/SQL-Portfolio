@@ -8,7 +8,10 @@ In this repository, I showcase a case study from 'data with Danny' where I lever
 To view the complete case study, please visit [this page](https://8weeksqlchallenge.com/case-study-2/).
 
 ---
+
+
 ## Part 1. Data Cleaning
+
 
 ### 1.1. Cleaning Pizza Recipes Table
 Converting these tables;
