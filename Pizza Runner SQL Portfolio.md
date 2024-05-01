@@ -129,6 +129,7 @@ VALUES
 ---
 ## Part 1. Data Cleaning
 <br>
+
 ### 1.1. Cleaning Pizza Recipes Table
 Converting these tables;
 
