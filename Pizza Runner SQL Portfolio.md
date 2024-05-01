@@ -8,9 +8,9 @@ In this repository, I showcase a case study from 'data with Danny' where I lever
 To view the complete case study, please visit [this page](https://8weeksqlchallenge.com/case-study-2/).
 
 ---
-<br><br>
+
 ## Part 1. Data Cleaning
-<br><br>
+
 ### 1.1. Cleaning Pizza Recipes Table
 <br><br>
 Converting these tables;
@@ -48,6 +48,7 @@ Converting these tables;
 | 11 |	Tomatoes |
 | 12 |	Tomato Sauce |
 
+<br><br>
 ```sql
 CREATE VIEW pizza_ing_cleaned AS
  
@@ -88,7 +89,7 @@ CREATE VIEW pizza_ing_cleaned AS
 
 SELECT * FROM pizza_ing_cleaned;
 ```
-
+<br><br>
 Output view: **pizza_ing_cleaned**
 | pizza_id | ingredient_id | pizza_name | topping_name |
 | --- | --- | --- | --- |
@@ -110,8 +111,7 @@ Output view: **pizza_ing_cleaned**
 
 
 ### 1.2. Cleaning Runner Orders Table
-
-
+<br><br>
 **Converting this table : Runner_orders**
 | order_id | runner_id | pickup_time         | distance | duration   | cancellation          |
 | -------- | --------- | ------------------- | -------- | ---------- | --------------------- |
@@ -125,7 +125,7 @@ Output view: **pizza_ing_cleaned**
 | 8        | 2         | 2020-01-10 00:15:02 | 23.4 km  | 15 minutes |                       |
 | 9        | 2         | null                | null     | null       | Customer Cancellation  |
 | 10       | 1         | 2020-01-11 18:50:20 | 10km     | 10 minutes |                       |
-
+<br><br>
 ```sql
 
 CREATE VIEW cleaned_runner_orders AS
@@ -162,7 +162,7 @@ JOIN runners R ON O.runner_id = R.runner_id;
 
 SELECT * FROM cleaned_runner_orders;
 ```
-
+<br><br>
 Output view: **cleaned_runner_orders**
 
 | order_id | pickup_time         | distance(km) | duration(mins) | cancellation          | runner_id | registration_date |
