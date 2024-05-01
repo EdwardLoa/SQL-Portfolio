@@ -3,7 +3,7 @@
 Dear readers,
 
 Thank you for visiting my GitHub page.  
-In this repository, I showcase a case study from 'data with Danny' where I leverage MySQL 8.0 Workbench to handle real-life queries, demonstrating my skills in table editing, nested queries, and data transformation. The further down the questions, the more complicated the queries are.
+In this repository, I showcase a case study from 'data with Danny' where I leverage MySQL 8.0 Workbench to handle business queries, demonstrating my skills in table editing, nested queries, and data transformation. The further down the questions, the more complicated the queries are.
 
 To view the complete case study, please visit [this page](https://8weeksqlchallenge.com/case-study-2/).
 
