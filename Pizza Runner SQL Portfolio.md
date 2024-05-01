@@ -126,6 +126,9 @@ VALUES
   (12, 'Tomato Sauce');
 ```
 
+<br>
+
+
 ---
 ## Part 1. Data Cleaning
 
@@ -300,6 +303,9 @@ Output view: **cleaned_runner_orders**
 | 10       | 2020-01-11 18:50:20 | 10           | 10             |                       | 1         | 2021-01-01        |
 
 
+<br>
+
+
 ### 1.3. Cleaning Customer Orders Table
 
 **Converting this table : customer_orders**
@@ -361,6 +367,9 @@ Output view: **cleaned_customer_orders**
 | 13        | 10       | 104         | 1        | 2020-01-11 18:34:49 |            |        |
 | 14        | 10       | 104         | 1        | 2020-01-11 18:34:49 | 2, 6       | 1, 4   |
 
+<br>
+
+
 ### 1.4. Creating exclusions Table
 
 ```sql
@@ -409,6 +418,9 @@ SELECT * FROM cleaned_exclusions;
 | 12        | 9        | Meatlovers | 4                   | Cheese           |
 | 14        | 10       | Meatlovers | 2                   | BBQ Sauce        |
 | 14        | 10       | Meatlovers | 6                   | Mushrooms        |
+
+<br>
+
 
 ### 1.5. Creating extras Table
 
@@ -459,6 +471,9 @@ SELECT * FROM cleaned_extras;
 | 14        | 10       | Meatlovers | 1                | Bacon         |
 | 14        | 10       | Meatlovers | 4                | Cheese        |
 
+<br>
+
+
 ---
 
 ## Part 2. Pizza Metrics
@@ -471,6 +486,9 @@ FROM cleaned_customer_orders;
 ```
 
 **14 Pizzas were ordered.**
+
+<br>
+
 
 ### Question 2: How many unique customer orders were made?
 
@@ -489,6 +507,9 @@ GROUP BY customer_id;
 | 104         | 2         |
 | 105         | 1         |
 
+<br>
+
+
 ### Question 3: How many successful orders were delivered by each runner? 
 
 ```sql
@@ -498,6 +519,9 @@ WHERE cancellation IS NULL;
 ```
 
 **8 successful orders**
+
+<br>
+
 
 ### Question 4: How many of each type of pizza was delivered? 
 
@@ -520,6 +544,9 @@ GROUP BY N.pizza_name;
 | ---------- | ------------------ |
 | Meatlovers | 9                  |
 | Vegetarian | 3                  |
+
+<br>
+
 
 ### Question 5: How many Vegetarian and Meatlovers were ordered by each customer?
 
@@ -544,6 +571,9 @@ ORDER BY customer_id;
 | 104         | Meatlovers  | 3        |
 | 105         | Vegetarian  | 1        |
 
+<br>
+
+
 ### Question 6: What was the maximum number of pizzas delivered in a single order?
 
 ```sql
@@ -558,6 +588,9 @@ LIMIT 1;
 | no_pizza_ordered | order_id |
 | ---------------- | -------- |
 | 3                | 4        |
+
+<br>
+
 
 ### Question 7: For each customer, how many delivered pizzas had at least 1 change and how many had no changes?
 
@@ -602,6 +635,9 @@ GROUP BY customer_id;
 | 104         | 2                | 1              |
 | 105         | 1                | 0              |
 
+<br>
+
+
 ### Question 8: How many pizzas were delivered that had both exclusions and extras?
 
 ```sql
@@ -614,6 +650,9 @@ WHERE
     	AND R.cancellation IS NULL;
 ```
 **1 Pizza**
+
+<br>
+
 
 ### Question 9: What was the total volume of pizzas ordered for each hour of the day?
 
@@ -643,6 +682,9 @@ GROUP BY date_order, hour_order;
 | 2020-01-11 | 18         | 2                |
 | 2024-04-28 | 7          | 4                |
 
+<br>
+
+
 ### Question 10: What was the volume of orders for each day of the week? 
 
 ```sql
@@ -662,6 +704,9 @@ GROUP BY day_of_week;
 | Sunday      | 4         |
 
 ---
+
+<br>
+
 
 ## Part 3.  Runner and Customer Experience
 
@@ -702,6 +747,9 @@ GROUP BY
 | 1                 | 2021-01-08    | 2          |
 | 1                 | 2021-01-15    | 3          |
 
+<br>
+
+
 ### Question 2: What was the average time in minutes it took for each runner to arrive at the Pizza Runner HQ to pickup the order?
 
 ```sql
@@ -732,6 +780,9 @@ GROUP BY runner_id;
 | 15.67777778        | 1         |
 | 23.72000000        | 2         |
 | 10.46666667        | 3         |
+
+<br>
+
 
 ### Question 3: Is there any relationship between the number of pizzas and how long the order takes to prepare?
 
@@ -769,6 +820,9 @@ GROUP BY no_pizza_ordered;
 | 18.37500000         | 2                |
 | 29.28330000         | 3                |
 
+<br>
+
+
 ### Question 4: What was the average distance travelled for each customer?
 
 ```sql
@@ -789,6 +843,9 @@ GROUP BY customer_id;
 | 10                 | 104         |
 | 25                 | 105         |
 
+<br>
+
+
 ### Question 5: What was the difference between the longest and shortest delivery times for all orders?
 
 ```sql
@@ -799,6 +856,9 @@ FROM cleaned_runner_orders;
 ```
 
 **30 minutes difference**
+
+<br>
+
 
 ### Question 6: What was the average speed for each runner for each delivery and do you notice any trend for these values?
 
@@ -823,6 +883,9 @@ ORDER BY runner_id, order_id;
 | 2         | 7        | 60    |
 | 2         | 8        | 94    |
 | 3         | 5        | 40    |
+
+<br>
+
 
 ### Question 7: What is the successful delivery percentage for each runner?
 
@@ -852,6 +915,9 @@ GROUP BY runner_id;
 | 2         | 4         | 3                | 75.00        |
 | 3         | 2         | 1                | 50.00        |
 
+<br>
+
+
 ## Part 4. Ingredient Optimisation
 
 ### Question 1: What are the standard ingredients for each pizza? 
@@ -867,6 +933,9 @@ HAVING count(pizza_id) = 2;
 | BBQ Sauce    |
 | Cheese       |
 | Mushrooms    |
+
+<br>
+
 
 ### Question 2: What was the most commonly added extra?
 
@@ -903,6 +972,9 @@ LIMIT 1;
 | COUNT(S.order_id) | topping_name |
 | ----------------- | ------------ |
 | 5                 | Bacon        |
+
+<br>
+
 
 ### Question 3: What was the most common exclusion?
 
@@ -945,6 +1017,9 @@ LIMIT 1;
 | ------------ | ----------------- |
 | Cheese       | 5                 |
 
+<br>
+
+
 ### Question 4: Generate an order item for each record in the customers_orders table in the format of one of the following:
 ### Meat Lovers - Exclude Beef
 ### Meat Lovers - Extra Bacon
@@ -957,6 +1032,9 @@ VALUES
     (12, NULL, 1, NULL, 1, CURRENT_TIME()),
     (13, NULL, 1, '1, 4', '6, 9', CURRENT_TIME());
 ```
+
+<br>
+
 
 ### Question 5: Generate an alphabetically ordered comma separated ingredient list for each pizza order from the customer_orders table and add a 2x in front of any relevant ingredients. For example: "Meat Lovers: 2xBacon, Beef, ... , Salami"
 
@@ -1026,6 +1104,9 @@ GROUP BY order_id, record_id, pizza_name;
 | 17        | 12       | Meatlovers: 2x Bacon, BBQ Sauce, Beef, Cheese, Chicken, Mushrooms, Pepperoni, Salami       |
 | 18        | 13       | Meatlovers: 2x Mushrooms, BBQ Sauce, Beef, Chicken, Pepperoni, Peppers, Salami             |
 
+<br>
+
+
 ### Question 6: What is the total quantity of each ingredient used in all delivered pizzas sorted by most frequent first?
 
 ```sql
@@ -1074,6 +1155,9 @@ ORDER BY COUNT(updated_ingredient) DESC,
 | 4        | Tomato Sauce |
 | 4        | Tomatoes     |
 
+<br>
+
+
 ## Part 5. Pricing and Ratings
 
 ### Question 1: If a Meat Lovers pizza costs $12 and Vegetarian costs $10 and there were no charges for changes - how much money has Pizza Runner made so far if there are no delivery fees?
@@ -1092,6 +1176,9 @@ GROUP BY pizza_id
 SELECT SUM(quantity*price) AS Revenue FROM tempTable7;
 ```
 **$208 Revenue**
+
+<br>
+
 
 ### Question 2: What if there was an additional $1 charge for any pizza extras? Add cheese is $1 extra
 
@@ -1117,6 +1204,9 @@ FROM tempTable7;
 ```
 **Revenue of $218**
 
+<br>
+
+
 ### Question 3: The Pizza Runner team now wants to add an additional ratings system that allows customers to rate their runner, 
 ### how would you design an additional table for this new dataset? 
 ### insert your own data for ratings for each successful customer order between 1 to 5.
@@ -1139,6 +1229,9 @@ SET rating =
             	ELSE 5
             	END;
 ```
+
+<br>
+
 
 ### Question 4: Using your newly generated table - can you join all of the information together to form a table which has the following information for successful deliveries?
 ### customer_id, order_id, runner_id, rating, order_time, pickup_time, Time between order and pickup, Delivery duration, Average speed, Total number of pizzas
@@ -1179,6 +1272,9 @@ WHERE cancellation IS NULL;
 | 105         | 7        | 2         | 2      | 2020-01-08 21:20:29| 2020-01-08 21:30:45| 00:10:16                      | 00:25:00          | 62.9             | 1                     |
 | 102         | 8        | 2         | 3      | 2020-01-09 23:54:33| 2020-01-10 00:15:02| 00:20:29                      | 00:15:00          | 62.9             | 1                     |
 | 104         | 5        | 3         | 5      | 2020-01-08 21:00:29| 2020-01-08 21:10:57| 00:10:28                      | 00:15:00          | 40               | 1                     |
+
+<br>
+
 
 ### Question 5: If a Meat Lovers pizza was $12 and Vegetarian $10 fixed prices with no cost for extras and each runner is paid $0.30 per kilometre traveled - how much money does Pizza Runner have left over after these deliveries?
 
