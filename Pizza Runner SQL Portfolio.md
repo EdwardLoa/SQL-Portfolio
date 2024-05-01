@@ -228,6 +228,7 @@ Output view: **pizza_ing_cleaned**
 |2|	11 |	Vegetarian |	Tomatoes |
 |2|	12 |	Vegetarian |	Tomato Sauce |
 
+<br>
 
 ### 1.2. Cleaning Runner Orders Table
 
