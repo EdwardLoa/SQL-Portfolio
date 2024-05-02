@@ -182,7 +182,7 @@ CREATE VIEW pizza_ing_cleaned AS
 		FROM
 			pizza_recipes
 		
-		UNION ALL
+		UNION ALL /*union with the remainder text below */
 		SELECT
 			pizza_id,
 			SUBSTRING_INDEX(remaining_text, ',', 1), /* Fetching the first topping ID of the remaining text */
@@ -196,7 +196,7 @@ CREATE VIEW pizza_ing_cleaned AS
 		
 	SELECT 
 		S.pizza_id, 
-        	CAST(ingredient_id AS SIGNED) AS ingredient_id, 
+        	CAST(ingredient_id AS SIGNED) AS ingredient_id, /* changing datatype to number; signed. INT is not available */
         	N.pizza_name, 
         	T.topping_name
 	FROM 
@@ -255,19 +255,19 @@ Output view: **pizza_ing_cleaned**
 CREATE VIEW cleaned_runner_orders AS
 SELECT 
 	order_id,
-	CAST(IF (pickup_time = 'null', NULL, pickup_time) AS DATETIME) AS pickup_time,
+	CAST(IF (pickup_time = 'null', NULL, pickup_time) AS DATETIME) AS pickup_time, /*cleaning the column, some nulls are in actual string form */
     	CAST(
 		CASE 
-			WHEN distance LIKE '%km' THEN TRIM(SUBSTRING_INDEX(distance, 'km', 1))
+			WHEN distance LIKE '%km' THEN TRIM(SUBSTRING_INDEX(distance, 'km', 1)) /*removing additional string of km */
 			WHEN distance = 'null' THEN NULL
 			ELSE distance
 			END
 		AS float)
-		AS 'distance(km)',
+		AS 'distance(km)', /* `` is required for string value with ( ) */
     	CAST(
 		CASE
 			WHEN duration = 'null' THEN NULL
-			WHEN duration REGEXP '[0-9]+' THEN REGEXP_SUBSTR(duration, '[0-9]+')
+			WHEN duration REGEXP '[0-9]+' THEN REGEXP_SUBSTR(duration, '[0-9]+') /* just experimenting substring with regex */
 			ELSE TRIM(duration)
 			END
 		AS SIGNED)
@@ -332,7 +332,11 @@ ALTER TABLE customer_orders
 ADD COLUMN record_id INT AUTO_INCREMENT PRIMARY KEY;
 
 ALTER VIEW cleaned_customer_orders AS
-SELECT record_id, order_id, customer_id, pizza_id, order_time,
+SELECT 	record_id,
+	order_id,
+	customer_id,
+	pizza_id,
+	order_time,
 	CASE 
 		WHEN exclusions = 'null' THEN NULL
 		WHEN exclusions = '' THEN NULL
@@ -380,7 +384,7 @@ WITH recursive split_exclusions AS (
 		record_id,
  		order_id,
         	pizza_id,
-		SUBSTRING_INDEX(exclusions, ',', 1) AS exclusions2,
+		SUBSTRING_INDEX(exclusions, ',', 1) AS exclusions2, /* similar recursive form as previous codes */
         	SUBSTRING(exclusions, LOCATE(',', exclusions) +2) AS remainders
 	FROM cleaned_customer_orders
     	UNION ALL
@@ -526,14 +530,15 @@ WHERE cancellation IS NULL;
 ### Question 4: How many of each type of pizza was delivered? 
 
 ```sql
-WITH successful_order AS
-	(SELECT COUNT(order_id) AS no_successful_order, 
+WITH successful_order AS (
+	SELECT 	COUNT(order_id) AS no_successful_order, /* fetching up the orders with no cancellation from runners table */
 		order_id
-    	 FROM cleaned_runner_orders
-    	 WHERE cancellation IS NULL
-    	 GROUP BY order_id)
+	FROM 	cleaned_runner_orders
+	WHERE 	cancellation IS NULL
+	GROUP BY order_id
+)
 SELECT  N.pizza_name, 
-        COUNT(O.pizza_id) AS no_delivered_pizza 
+        COUNT(O.pizza_id) AS no_delivered_pizza /* counting the number of delivered pizzas from successful delivery order */
 FROM cleaned_customer_orders O
 JOIN successful_order S ON O.order_id = S.order_id
 JOIN pizza_names N ON N.pizza_id = O.pizza_id
@@ -596,12 +601,12 @@ LIMIT 1;
 
 ```sql
 WITH temp_table AS
-	(WITH successful_order AS
-	    (   SELECT order_id
+	(WITH successful_order AS 
+	    (   SELECT order_id /*fetching list of successful orders */
 	        FROM cleaned_runner_orders
 	        WHERE cancellation IS NULL
 	    )
-	SELECT 
+	SELECT /*creating a new column to tag exclusions, extras, or no change */
 		customer_id, 
 		CASE 
 			WHEN exclusions IS NOT NULL THEN 'exclusions'
@@ -617,7 +622,7 @@ WITH temp_table AS
 SELECT
 	customer_id,
     	COUNT(
-		CASE 	WHEN changes_made = 'exclusions' THEN 1
+		CASE 	WHEN changes_made = 'exclusions' THEN 1 /* tags the changes to 1 then sum them up to count the number of changes */
 			WHEN changes_made = 'extras' THEN 1
 		END) As Num_changes_made,
 	COUNT(
@@ -659,11 +664,11 @@ WHERE
 ```sql
 SELECT 
     CAST(
-        REGEXP_SUBSTR(order_time, '[0-9]{4}-[0-9]{2}-[0-9]{2} ')
+        REGEXP_SUBSTR(order_time, '[0-9]{4}-[0-9]{2}-[0-9]{2} ') /* fetching dates string with regex */
         AS DATE) 
     	AS date_order,
     CAST(
-        TRIM(REGEXP_SUBSTR(order_time, ' [0-9]{2}')) 
+        TRIM(REGEXP_SUBSTR(order_time, ' [0-9]{2}')) /* fetching the hours only with regex (I'm actually a regex fan) */
         AS UNSIGNED) 
     	AS hour_order,
     COUNT(order_id) AS no_pizza_ordered
@@ -716,7 +721,7 @@ GROUP BY day_of_week;
 WITH RECURSIVE WeekNumbers AS (
     SELECT
 	1 AS WeekNumber,
-    	CAST('2021-01-01' AS DATE) AS StartDate
+    	CAST('2021-01-01' AS DATE) AS StartDate	/*creating loop of weeknumbers based on the start date + 7 */
     
     UNION ALL
     SELECT 
@@ -725,7 +730,7 @@ WITH RECURSIVE WeekNumbers AS (
     FROM 
         WeekNumbers
     WHERE 
-        DATE_ADD(StartDate, INTERVAL 7 DAY) <= '2021-02-01' -- Limit recursion
+        DATE_ADD(StartDate, INTERVAL 7 DAY) <= '2021-02-01' /* Limit recursion */
 )
 
 SELECT 
@@ -755,7 +760,7 @@ GROUP BY
 ```sql
 
 WITH tempoTable AS ( 
-    SELECT 
+    SELECT /* joining the runner order and customer order tables to get pickup and order time */
         RO.order_id,
         RO.runner_id,
         CAST(RO.pickup_time AS DATETIME) AS pickupTime,
@@ -768,7 +773,7 @@ WITH tempoTable AS (
 
 SELECT
 	AVG(TIME_TO_SEC
-            (TIMEDIFF(pickupTime, orderTime) )
+            (TIMEDIFF(pickupTime, orderTime) ) /* finding the difference and then average them for each runner */
 	    )/ 60 AS avg_mins_to_arrive,
     	runner_id
 FROM tempoTable
@@ -791,8 +796,8 @@ CREATE VIEW mins_prep_per_orderID AS
 		SELECT 
 			RO.order_id,
 			TIME_TO_SEC (
-                        TIMEDIFF (CAST(RO.pickup_time AS DATETIME),  CAST(CO.order_time AS DATETIME) ) 
-                        ) /60 AS mins_prep_time
+                        	TIMEDIFF (CAST(RO.pickup_time AS DATETIME),  CAST(CO.order_time AS DATETIME) ) 
+                        	) /60 AS mins_prep_time
 		FROM 
 			cleaned_runner_orders RO
 			JOIN cleaned_customer_orders CO ON CO.order_id = RO.order_id
@@ -866,7 +871,7 @@ FROM cleaned_runner_orders;
 SELECT
 	runner_id,
 	order_id,
-	ROUND( `distance(km)`/ (`duration(mins)`/60) ) AS speed
+	ROUND( `distance(km)`/ (`duration(mins)`/60) ) AS speed	/* assuming speed in this question is km per hour */
 FROM cleaned_runner_orders
 WHERE `duration(mins)` iS NOT NULL
 ORDER BY runner_id, order_id;
@@ -893,12 +898,12 @@ ORDER BY runner_id, order_id;
 SELECT 
 	runner_id, 
     	COUNT(order_id) AS No_orders,
-    	SUM(CASE WHEN cancellation IS NULL THEN 1
+    	SUM(CASE WHEN cancellation IS NULL THEN 1 /*quantifying successful order */
 		 ELSE 0
 		 END)
 		 AS successful_order,
 	ROUND(
-        	(SUM(CASE   WHEN cancellation IS NULL THEN 1
+        	(SUM(CASE   WHEN cancellation IS NULL THEN 1 /*finding the percentage */
 		            ELSE 0
 			    END)
         	/
@@ -943,12 +948,12 @@ HAVING count(pizza_id) = 2;
 WITH recursive split_extras AS (
 	SELECT 
 		order_id,
-		SUBSTRING_INDEX(extras, ',', 1) AS extras,
+		SUBSTRING_INDEX(extras, ',', 1) AS extras, /*creating list of order_id: extra topping with recursive function like before */
         	SUBSTRING(extras, LOCATE(',', extras) +2) AS remainders2
 	FROM cleaned_customer_orders
     	WHERE extras IS NOT NULL
     
-    UNION ALL
+    	UNION ALL
     
     	SELECT
 		order_id,
@@ -1041,16 +1046,18 @@ VALUES
 ```sql
 WITH tempTable4 AS (
 		WITH tempTable3 AS (
-				        SELECT DISTINCT
+				        SELECT DISTINCT /* there is no outer join in mysql as far as i know, so i have to combine left join and right join */
 						CO.order_id,
 						CO.record_id,
 						PI.pizza_name,
 						PI.topping_name,
 						CE.extra_topping
 					FROM cleaned_customer_orders CO
-						JOIN pizza_ing_cleaned PI ON CO.pizza_id = PI.pizza_id
-						LEFT JOIN cleaned_extras CE ON CE.record_id = CO.record_id AND topping_name = extra_topping
+					JOIN pizza_ing_cleaned PI ON CO.pizza_id = PI.pizza_id
+					LEFT JOIN cleaned_extras CE ON CE.record_id = CO.record_id AND topping_name = extra_topping
 
+					/*the section above is fetching the extras that are already in the ingredient list, */
+					/* below is for extras that are not in the original ingredient list */
 
 					UNION ALL
 
@@ -1067,7 +1074,7 @@ WITH tempTable4 AS (
         				)
 
 		SELECT T.order_id, T.record_id, T.pizza_name,
-				CASE	WHEN topping_name = extra_topping THEN CONCAT('2x ', topping_name)
+				CASE	WHEN topping_name = extra_topping THEN CONCAT('2x ', topping_name) /* updating the ingredient list */
 					WHEN topping_name = X.excluded_topping THEN null
 					WHEN topping_name IS NULL THEN extra_topping
 					ELSE topping_name
@@ -1080,6 +1087,7 @@ WITH tempTable4 AS (
 SELECT  record_id, 
         order_id,
 	CONCAT(pizza_name, ': ', GROUP_CONCAT(updated_ingredient ORDER BY updated_ingredient SEPARATOR ', ' )) AS pizza_ingredient
+	/* finally concat all the strings together as required */
 FROM tempTable4
 GROUP BY order_id, record_id, pizza_name;
 ```
@@ -1111,7 +1119,7 @@ GROUP BY order_id, record_id, pizza_name;
 
 ```sql
 WITH tempTable6 AS(
-                SELECT
+                SELECT /* removing the excluded ingredient from the list */
 			CO.record_id,
 			CO.order_id,
 			PI.pizza_name,
@@ -1124,14 +1132,14 @@ WITH tempTable6 AS(
 		LEFT JOIN cleaned_exclusions X ON CO.record_id = X.record_id AND PI.topping_name = X.excluded_topping
 
 		UNION ALL
-		SELECT
+		SELECT /* including the extras on the list of ingredients */
 			record_id,
 			order_id,
 			pizza_name,
 			extra_topping AS updated_ingredient
                 FROM cleaned_extras
 )
-SELECT  COUNT(updated_ingredient) AS quantity, 
+SELECT  COUNT(updated_ingredient) AS quantity, /* counting the updated ingredient list */
         updated_ingredient AS ingredient
 FROM tempTable6
 WHERE updated_ingredient IS NOT NULL
@@ -1165,7 +1173,7 @@ ORDER BY COUNT(updated_ingredient) DESC,
 ```sql
 WITH tempTable7 AS(
 SELECT  pizza_id, 
-        COUNT(record_id) AS quantity,
+        COUNT(record_id) AS quantity, /* creating a price column */
 		CASE WHEN pizza_id = 1 THEN 12
 		     ELSE 10
                      END
@@ -1183,18 +1191,19 @@ SELECT SUM(quantity*price) AS Revenue FROM tempTable7;
 ### Question 2: What if there was an additional $1 charge for any pizza extras? Add cheese is $1 extra
 
 ```sql
-WITH tempTable7 AS(
-SELECT pizza_id, COUNT(record_id) AS quantity,
-		CASE WHEN pizza_id = 1 THEN 12
-		     ELSE 10
-                     END
-		     AS price
-FROM cleaned_customer_orders
-GROUP BY pizza_id
+WITH tempTable7 AS( /*creating CTE of cleaned_customer_orders with price and quantity sold */
+	SELECT 	pizza_id,
+		COUNT(record_id) AS quantity,
+		CASE 	WHEN pizza_id = 1 THEN 12
+			ELSE 10
+			END
+			AS price
+	FROM cleaned_customer_orders
+	GROUP BY pizza_id
 )
-SELECT  SUM(quantity*price) + 
+SELECT  SUM(quantity*price) + /* finding the revenue */
 		    (SELECT 
-		    	SUM(CASE WHEN extra_topping = 'Cheese' THEN 2
+		    	SUM(CASE WHEN extra_topping = 'Cheese' THEN 2 /*finding the revenue from extras */
 			     ELSE 1
 			     END) 
 			AS extra_cost
@@ -1238,7 +1247,7 @@ SET rating =
 
 ```sql
 WITH tempTable8 AS(
-        SELECT 	COUNT(record_id) AS pizza_quantity,
+        SELECT 	COUNT(record_id) AS pizza_quantity, /* creating CTE with order_time and pizza quantity */
 		order_id,
                 customer_id,
                 order_time
@@ -1256,7 +1265,7 @@ SELECT  customer_id,
 	TIMEDIFF(pickup_time, order_time) AS Time_between_order_and_pickup,
 	SEC_TO_TIME(`duration(mins)` * 60) AS delivery_duration,
         ROUND(AVG(`distance(km)`/ (`duration(mins)` / 60)) 
-		OVER (PARTITION BY runner_id) , 2) AS runner_avg_speed,
+		OVER (PARTITION BY runner_id) , 2) AS runner_avg_speed, /* window function, averaging the speed for each runner */
 	pizza_quantity  AS total_number_of_pizza
 FROM cleaned_runner_orders R
 JOIN tempTable8 CO ON CO.order_id = R.order_id
@@ -1280,7 +1289,7 @@ WHERE cancellation IS NULL;
 
 ```sql
 WITH tempTable10 AS(
-                    SELECT order_id,
+                    SELECT order_id, /*creating price column */
 		            SUM(CASE WHEN pizza_id = 1 THEN 12
 				     ELSE 10
 				     END) AS Revenue_per_order
@@ -1288,8 +1297,9 @@ WITH tempTable10 AS(
                     GROUP BY order_id
 )
 SELECT 	CO.order_id, 
-		ROUND (`distance(km)` * 0.3 , 2) AS delivery_cost, Revenue_per_order,
-		ROUND (Revenue_per_order - (`distance(km)` * 0.3) ,2) AS Profit_or_loss
+	ROUND (`distance(km)` * 0.3 , 2) AS delivery_cost,
+	Revenue_per_order,
+	ROUND (Revenue_per_order - (`distance(km)` * 0.3) ,2) AS Profit_or_loss
 FROM cleaned_runner_orders CO
 JOIN tempTable10 T ON T.order_id = CO.order_id
 WHERE `distance(km)` IS NOT NULL;
