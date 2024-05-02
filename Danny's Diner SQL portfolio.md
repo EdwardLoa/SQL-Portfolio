@@ -3,13 +3,8 @@
 Dear readers,
 
 Thank you for visiting my GitHub page.  
-In this document, I showcase a shorter case study from 'data with Danny' where I leverage MySQL 5.7 Workbench to handle business queries, demonstrating my skills in 
-
-
-Because of the outdated version, some functions such as WITH is not available, so I used CREATE VIEW instead.
-
-
-The further down the questions, the more complicated the queries are.
+In this document, I showcase my first SQL project using a short case study from 'data with Danny'. 
+I used MySQL 5.7 Workbench to handle these business queries. Note that because of the outdated version, some functions such as WITH is not available, so I used CREATE VIEW instead.
 
 To view the complete case study, please visit [this page](https://8weeksqlchallenge.com/case-study-1/).
 
