@@ -1,4 +1,4 @@
-# Case Study - Pizza Runner Store
+# Case Study - Foodie-Fi
 
 Dear readers,
 
