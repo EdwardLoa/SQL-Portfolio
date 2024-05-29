@@ -57,14 +57,14 @@ CREATE VIEW subscriptions_with_change AS(
 SELECT
 	ROW_NUMBER() OVER() as table_id,
 	s.customer_id,
-    s.plan_id,
-    LEAD(s.plan_id) OVER(PARTITION BY s.customer_id) AS new_plan_id,
-    p.plan_name,
-    LEAD(p.plan_name) OVER(PARTITION BY s.customer_id) AS new_plan_name,
-    s.start_date,
-    LEAD(s.start_date) OVER(PARTITION BY s.customer_id) AS date_change,
-    p.price,
-    LEAD(p.price) OVER(PARTITION BY s.customer_id) AS new_price
+    	s.plan_id,
+    	LEAD(s.plan_id) OVER(PARTITION BY s.customer_id) AS new_plan_id,
+    	p.plan_name,
+    	LEAD(p.plan_name) OVER(PARTITION BY s.customer_id) AS new_plan_name,
+    	s.start_date,
+    	LEAD(s.start_date) OVER(PARTITION BY s.customer_id) AS date_change,
+    	p.price,
+    	LEAD(p.price) OVER(PARTITION BY s.customer_id) AS new_price
 FROM subscriptions s
 JOIN plans p ON p.plan_id = s.plan_id
 ORDER BY customer_id, plan_id);
@@ -134,12 +134,19 @@ ORDER BY customer_id, plan_id;
 | 19          | pro monthly    | pro annual     | 19.90 | 199.00    | 2020-06-29 | 2020-08-29  | 61                 |
 
 **Customer 1; Took 7 days to change from TRIAL to BASIC_MONTHLY**
+<br>
 **Customer 2; Took 7 days to change from TRIAL to PRO ANNUAL**
+<br>
 **Customer 11; Took 7 days to change from TRIAL to CHURN**
+<br>
 **Customer 13; Took 7 days to change from TRIAL to BASIC MONTHLY, then 97 days to PRO MONTHLY**
+<br>
 **Customer 15; Took 7 days to change from TRIAL to PRO MONTHLY, then 36 days to CHURN**
+<br>
 **Customer 16; Took 7 days to change from TRIAL to BASIC MONTHLY, THEN 136 days to PRO ANNUAL**
+<br>
 **Customer 18; Took 7 days to change from TRIAL to BASIC MONTHLY**
+<br>
 **Customer 19; Took 7 days to change from TRIAL to PRO MONTHLY, then 61 days to PRO ANNUAL**
 
 <br>
