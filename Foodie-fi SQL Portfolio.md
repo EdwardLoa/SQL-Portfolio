@@ -12,7 +12,7 @@ To view the complete case study, please visit [this page](https://8weeksqlchalle
 
 ## Part 1. Data Cleaning
 
-### 1.1. Cleaning Pizza Recipes Table
+**Creating a joined view of subscriptions and plans with lead date values**
 
 <br>
 Converting these tables;
