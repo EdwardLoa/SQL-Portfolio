@@ -10,7 +10,7 @@ To view the complete case study, please visit [this page](https://8weeksqlchalle
 
 ---
 
-## Part 1. Data Cleaning
+## Part 1. DATA CLEANING
 
 **Creating a joined view of subscriptions and plans with lead date values**
 
@@ -104,13 +104,13 @@ Output view: **pizza_ing_cleaned**
 ```sql
 SELECT
 	customer_id,
-    plan_name,
-    new_plan_name,
-    price,
-    new_price,
-    start_date,
-    date_change,
-    DATEDIFF(date_change, start_date) AS days_before_change
+    	plan_name,
+    	new_plan_name,
+    	price,
+    	new_price,
+    	start_date,
+    	date_change,
+    	DATEDIFF(date_change, start_date) AS days_before_change
 FROM subscriptions_with_change
 WHERE 
 	customer_id IN (1,2,11,13,15,16,18,19)
@@ -173,7 +173,7 @@ FROM subscriptions_with_change;
 
 SELECT 
 	COUNT(customer_id) as num_of_cust,
-    MONTH(start_date) as month_start
+    	MONTH(start_date) as month_start
 FROM subscriptions_with_change
 WHERE plan_name = 'trial'
 GROUP BY MONTH(start_date)
@@ -203,7 +203,7 @@ ORDER BY month_start;
 ```sql
 SELECT 
 	COUNT(*) as events_count,
-    plan_id
+    	plan_id
 FROM subscriptions
 WHERE start_date > '2020-01-01'
 GROUP BY plan_id;
@@ -228,8 +228,8 @@ SELECT
 		(SELECT COUNT(DISTINCT customer_id) AS cust_churn FROM subscriptions_with_change WHERE plan_name = 'churn')
 		/
 		(SELECT COUNT(DISTINCT customer_id) AS total_cust FROM subscriptions_with_change)
-    * 100 , 1) AS percent_churned,
-    COUNT(DISTINCT customer_id) AS total_cust FROM subscriptions_with_change  
+    	* 100 , 1) AS percent_churned,
+    	COUNT(DISTINCT customer_id) AS total_cust FROM subscriptions_with_change  
 	;
 ```
 
@@ -258,8 +258,8 @@ SELECT ROUND(
                 FROM subscriptions_with_change
             )
         ) * 100, 1
-    ) AS churn_rate,
-    COUNT(DISTINCT customer_id) AS num_cust_churn
+    	) AS churn_rate,
+    	COUNT(DISTINCT customer_id) AS num_cust_churn
                 FROM subscriptions_with_change
                 WHERE plan_name = 'trial'
                 AND new_plan_name = 'churn';
@@ -283,7 +283,7 @@ SELECT
 		COUNT(customer_id) /
 		(SELECT COUNT(customer_id) FROM subscriptions_with_change WHERE plan_name = 'trial' AND new_plan_name != 'churn') 
 	* 100, 1) AS percentage,
-    COUNT(customer_id) as num_cust,
+    	COUNT(customer_id) as num_cust,
 	new_plan_name as plan_after_trial
 FROM subscriptions_with_change
 WHERE 
@@ -306,16 +306,16 @@ GROUP BY new_plan_name;
 ```sql
 SELECT 
 	ROUND
-    (COUNT(customer_id)
-    /
-    (SELECT COUNT(customer_id) FROM subscriptions_with_change WHERE new_plan_id IS NULL AND start_date < '2021-01-01')
-    * 100, 1) AS percentage, 
-    COUNT(customer_id) AS cust_num,
-    plan_name
+    	(COUNT(customer_id)
+    	/
+    	(SELECT COUNT(customer_id) FROM subscriptions_with_change WHERE new_plan_id IS NULL AND start_date < '2021-01-01')
+    	* 100, 1) AS percentage, 
+    	COUNT(customer_id) AS cust_num,
+    	plan_name
 FROM subscriptions_with_change
 WHERE 
 	new_plan_id IS NULL
-    AND start_date < '2021-01-01'
+    	AND start_date < '2021-01-01'
 GROUP BY plan_name;
 ```
 | percentage | cust_num | plan_name      |
@@ -337,7 +337,7 @@ SELECT COUNT(DISTINCT customer_id) AS num_cust_annual_in_2020
 FROM subscriptions_with_change
 WHERE 
 	plan_name = 'pro annual'
-    AND YEAR(start_date) = 2020;
+    	AND YEAR(start_date) = 2020;
 ```
 | num_cust_annual_in_2020 |
 |--------------------------|
@@ -372,7 +372,7 @@ WITH days_til_annual_plan_table AS(
 		FROM cust_annual_plan
 	)
 SELECT
-    ROUND(AVG(days_til_annual_plan),0) AS Avg_days_til_annual_plan
+    	ROUND(AVG(days_til_annual_plan),0) AS Avg_days_til_annual_plan
 FROM
 	days_til_annual_plan_table
 WHERE
@@ -434,7 +434,7 @@ WITH bin_tag_table AS(
 )
 SELECT
 	COUNT(customer_id),
-    bin_tag
+    	bin_tag
 FROM
 	bin_tag_table
 GROUP BY
@@ -468,7 +468,7 @@ FROM subscriptions_with_change
 WHERE 
 	plan_name = 'pro monthly'
 	AND new_plan_name = 'basic monthly'
-    AND date_change < '2021-01-01';
+    	AND date_change < '2021-01-01';
 ```
 | COUNT(*) |
 |----------|
@@ -478,7 +478,7 @@ WHERE
 
 
 
-## Appendix. Tables Creation
+## Appendix. TABLES CREATION
 
 ```sql
 CREATE SCHEMA foodie_fi;
