@@ -1,6 +1,6 @@
 # Case Study - Pizza Runner Store
 
-Dear readers,
+Greetings!
 
 Thank you for visiting my GitHub page.  
 In this repository, I showcase a case study from 'data with Danny' where I leverage MySQL 8.0 Workbench to handle business queries, demonstrating my skills in table editing, nested queries, and data transformation. The further down the questions, the more complicated the queries are.
@@ -1315,3 +1315,4 @@ WHERE `distance(km)` IS NOT NULL;
 | 7        | 7.5           | 10                | 2.5            |
 | 8        | 7.02          | 12                | 4.98           |
 | 10       | 3             | 24                | 21             |
+
